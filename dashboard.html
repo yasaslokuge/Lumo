@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lumo — Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; background: #e7e3d8;
+    font-family: 'Hanken Grotesk', sans-serif;
+  }
+
+  @keyframes lumoScreenIn { from { opacity: 0; transform: translateX(28px) scale(0.98); } to { opacity: 1; transform: none; } }
+  @keyframes lumoSwirlA { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(-16px,14px) scale(1.15); } 66% { transform: translate(12px,-10px) scale(0.95); } }
+  @keyframes lumoOrbBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  @keyframes lumoUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @keyframes lumoBob { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-9px) rotate(1deg); } }
+  @keyframes lumoShadowP { 0%,100% { transform: translateX(-50%) scaleX(1); opacity: 0.26; } 50% { transform: translateX(-50%) scaleX(0.84); opacity: 0.16; } }
+  @keyframes lumoBlink { 0%,90%,100% { transform: scaleY(0); } 94%,97% { transform: scaleY(1); } }
+  @keyframes lumoWave { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(-16deg); } }
+  @keyframes lumoFade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes lumoSheet { from { transform: translateY(102%); } to { transform: translateY(0); } }
+
+  .lumo-lang { transition: background 0.15s ease; cursor: pointer; }
+  .lumo-lang:hover { background: oklch(0.94 0.02 150) !important; }
+  .lumo-opt { transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease; }
+  .lumo-opt:hover { transform: translateY(-2px); background: #ffffff; border-color: rgba(33,30,24,0.18); }
+  .lumo-opt:active { transform: scale(0.985); }
+
+  .lumo-phone {
+    width: 390px; height: 844px; position: relative; overflow: hidden;
+    background: #F4F1EA; font-family: 'Hanken Grotesk', sans-serif; color: #211E18;
+    border-radius: 44px; box-shadow: 0 40px 90px -30px rgba(40,34,22,0.5), 0 0 0 1px rgba(0,0,0,0.04);
+    display: flex; flex-direction: column;
+    animation: lumoScreenIn 0.5s cubic-bezier(0.22,0.9,0.28,1) both;
+  }
+
+  .status-bar { display: flex; justify-content: space-between; align-items: center; padding: 16px 30px 0; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; }
+  .status-icons { display: flex; gap: 6px; align-items: center; opacity: 0.75; font-size: 12px; }
+  .status-icons .battery { border: 1.5px solid currentColor; border-radius: 3px; padding: 0 3px; }
+
+  .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px 0; animation: lumoUp 0.6s ease both; }
+  .wordmark { display: flex; align-items: center; gap: 9px; }
+  .logo { width: 30px; height: 30px; border-radius: 9px; background: oklch(0.48 0.058 158); display: flex; align-items: center; justify-content: center; color: #F4F1EA; font-family: 'Instrument Serif', serif; font-size: 20px; line-height: 1; }
+  .brand { font-family: 'Instrument Serif', serif; font-size: 22px; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .lang-pill {
+    display: flex; align-items: center; gap: 7px; padding: 7px 10px 7px 11px; border: 1px solid rgba(33,30,24,0.12);
+    border-radius: 999px; background: rgba(255,255,255,0.75); cursor: pointer; font-family: 'Hanken Grotesk', sans-serif;
+  }
+  .lang-pill .flag { font-size: 16px; line-height: 1; }
+  .lang-pill .code { font-size: 13px; font-weight: 600; letter-spacing: 0.03em; color: #4A4436; }
+  .lang-pill .chev { font-size: 10px; color: #9A917F; }
+  .avatar { width: 38px; height: 38px; border-radius: 50%; background: oklch(0.86 0.05 150); display: flex; align-items: center; justify-content: center; font-family: 'Instrument Serif', serif; font-size: 17px; color: oklch(0.4 0.06 158); }
+
+  .greeting { padding: 26px 30px 0; animation: lumoUp 0.65s ease 0.05s both; }
+  .greeting-kicker { font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: oklch(0.48 0.058 158); font-weight: 600; margin-bottom: 4px; }
+  .greeting-title { font-family: 'Instrument Serif', serif; font-size: 34px; line-height: 1.1; }
+  .greeting-title em { font-style: italic; }
+
+  .mascot-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; animation: lumoUp 0.8s ease 0.1s both; }
+  .mascot { position: relative; width: 236px; height: 246px; animation: lumoBob 6s ease-in-out infinite; }
+  .arm-l { position: absolute; left: 8px; top: 150px; width: 34px; height: 60px; border-radius: 20px; background: linear-gradient(180deg,oklch(0.6 0.1 156),oklch(0.5 0.09 158)); transform-origin: top center; animation: lumoWave 3.5s ease-in-out infinite; }
+  .arm-r { position: absolute; right: 8px; top: 150px; width: 34px; height: 60px; border-radius: 20px; background: linear-gradient(180deg,oklch(0.6 0.1 156),oklch(0.5 0.09 158)); }
+  .body-shape {
+    position: absolute; left: 50%; transform: translateX(-50%); top: 150px; width: 150px; height: 96px;
+    border-radius: 44px 44px 40px 40px; background: radial-gradient(circle at 42% 26%,oklch(0.66 0.1 155),oklch(0.48 0.09 158) 92%);
+    box-shadow: inset 0 -14px 26px oklch(0.4 0.08 158 / 0.5), inset 0 8px 18px oklch(0.92 0.03 130 / 0.4);
+  }
+  .belt { position: absolute; left: 0; right: 0; top: 36px; height: 20px; background: oklch(0.34 0.04 70); }
+  .belt-badge {
+    position: absolute; left: 50%; top: 31px; transform: translateX(-50%); width: 34px; height: 30px; border-radius: 8px;
+    background: oklch(0.86 0.13 92); display: flex; align-items: center; justify-content: center;
+    font-family: 'Instrument Serif', serif; font-size: 16px; font-weight: 600; color: oklch(0.34 0.04 70);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  }
+  .foot-l { position: absolute; left: 76px; top: 236px; width: 40px; height: 20px; border-radius: 0 0 16px 16px / 0 0 20px 20px; background: oklch(0.46 0.08 158); }
+  .foot-r { position: absolute; right: 76px; top: 236px; width: 40px; height: 20px; border-radius: 0 0 16px 16px / 0 0 20px 20px; background: oklch(0.46 0.08 158); }
+  .head {
+    position: absolute; left: 50%; transform: translateX(-50%); top: 6px; width: 186px; height: 164px; border-radius: 48% 48% 46% 46%;
+    background: radial-gradient(circle at 40% 30%,oklch(0.74 0.1 154),oklch(0.52 0.09 158) 94%);
+    box-shadow: inset 0 -16px 32px oklch(0.42 0.08 158 / 0.5), inset 0 12px 24px oklch(0.95 0.03 130 / 0.55), 0 18px 40px -16px oklch(0.5 0.09 158 / 0.55);
+  }
+  .ear-l { position: absolute; left: 20px; top: -16px; width: 46px; height: 46px; background: oklch(0.6 0.1 155); border-radius: 60% 10% 60% 60%; transform: rotate(-8deg); }
+  .ear-r { position: absolute; right: 20px; top: -16px; width: 46px; height: 46px; background: oklch(0.6 0.1 155); border-radius: 10% 60% 60% 60%; transform: rotate(8deg); }
+  .brow-l { position: absolute; left: 30px; top: 26px; width: 52px; height: 12px; border-radius: 8px; background: oklch(0.24 0.03 160); transform: rotate(-9deg); }
+  .brow-r { position: absolute; right: 30px; top: 26px; width: 52px; height: 12px; border-radius: 8px; background: oklch(0.24 0.03 160); transform: rotate(9deg); }
+  .eyes { position: absolute; left: 26px; top: 40px; display: flex; gap: 8px; }
+  .eye { position: relative; width: 66px; height: 66px; border-radius: 50%; background: #fff; overflow: hidden; box-shadow: inset 0 3px 8px rgba(0,0,0,0.18), 0 2px 4px rgba(0,0,0,0.1); }
+  .pupil { position: absolute; left: 50%; top: 50%; margin: -16px 0 0 -16px; width: 32px; height: 32px; border-radius: 50%; background: radial-gradient(circle at 38% 32%,oklch(0.35 0.03 160),oklch(0.18 0.02 160)); will-change: transform; }
+  .pupil-glint { position: absolute; left: 8px; top: 6px; width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,0.9); }
+  .eyelid { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: oklch(0.6 0.1 155); transform-origin: top; transform: scaleY(0); border-radius: 0 0 50% 50%; animation: lumoBlink 5.2s ease-in-out infinite; }
+  .eyelid.two { animation-delay: 0.05s; }
+  .mouth { position: absolute; left: 50%; transform: translateX(-50%); top: 118px; width: 44px; height: 22px; background: oklch(0.2 0.02 160); border-radius: 0 0 22px 22px; overflow: hidden; }
+  .mouth .teeth { position: absolute; left: 50%; transform: translateX(-50%); top: 0; width: 30px; height: 9px; background: #fff; border-radius: 0 0 6px 6px; }
+  .mouth .tongue { position: absolute; left: 50%; transform: translateX(-50%); bottom: 0; width: 20px; height: 9px; background: oklch(0.62 0.14 20); border-radius: 10px 10px 0 0; }
+  .mascot-shadow { width: 130px; height: 16px; border-radius: 50%; background: oklch(0.5 0.06 158); filter: blur(11px); margin-top: 8px; position: relative; left: 50%; transform: translateX(-50%); animation: lumoShadowP 6s ease-in-out infinite; }
+
+  .options { padding: 0 24px 30px; display: flex; flex-direction: column; gap: 12px; }
+  .lumo-opt {
+    display: flex; align-items: center; gap: 16px; width: 100%; padding: 18px 20px; border: 1px solid rgba(33,30,24,0.1);
+    border-radius: 20px; background: rgba(255,255,255,0.7); cursor: pointer; text-align: left; font-family: 'Hanken Grotesk', sans-serif;
+  }
+  .opt-icon { width: 44px; height: 44px; flex: none; border-radius: 13px; display: flex; align-items: center; justify-content: center; }
+  .opt-text { flex: 1; }
+  .opt-title { display: block; font-size: 17px; font-weight: 600; }
+  .opt-sub { display: block; font-size: 13px; color: #8A8172; margin-top: 2px; }
+  .opt-chev { color: #B8AF9C; font-size: 20px; }
+
+  .sheet-overlay { position: absolute; inset: 0; z-index: 40; border-radius: 44px; overflow: hidden; }
+  .sheet-backdrop { position: absolute; inset: 0; background: rgba(30,26,18,0.32); backdrop-filter: blur(2px); animation: lumoFade 0.25s ease both; cursor: pointer; }
+  .sheet {
+    position: absolute; left: 0; right: 0; bottom: 0; max-height: 78%; background: #F7F4EE; border-radius: 30px 30px 44px 44px;
+    box-shadow: 0 -20px 50px -20px rgba(40,34,22,0.4); display: flex; flex-direction: column;
+    animation: lumoSheet 0.34s cubic-bezier(0.22,0.9,0.28,1) both;
+  }
+  .sheet-handle-wrap { display: flex; justify-content: center; padding: 12px 0 4px; }
+  .sheet-handle { width: 40px; height: 5px; border-radius: 3px; background: rgba(33,30,24,0.16); }
+  .sheet-header { padding: 6px 26px 16px; }
+  .sheet-kicker { font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: oklch(0.48 0.058 158); font-weight: 600; }
+  .sheet-title { font-family: 'Instrument Serif', serif; font-size: 27px; line-height: 1.15; }
+  .sheet-desc { font-size: 14px; color: #8A8172; margin-top: 6px; }
+  .sheet-list { flex: 1; overflow-y: auto; padding: 0 20px 24px; display: flex; flex-direction: column; gap: 12px; }
+  .lumo-lang { display: flex; align-items: center; gap: 15px; padding: 18px 18px; border-radius: 18px; border: 1px solid rgba(33,30,24,0.1); background: rgba(255,255,255,0.7); }
+  .lumo-lang.selected { background: oklch(0.92 0.04 150); border-color: oklch(0.6 0.09 155); }
+  .lang-flag { width: 44px; height: 44px; flex: none; border-radius: 12px; background: oklch(0.9 0.045 150); display: flex; align-items: center; justify-content: center; font-size: 26px; line-height: 1; }
+  .lang-text { flex: 1; min-width: 0; }
+  .lang-native { display: block; font-size: 19px; font-weight: 600; color: #211E18; }
+  .lang-en { display: block; font-size: 13px; color: #8A8172; margin-top: 1px; }
+  .lang-check { color: oklch(0.48 0.058 158); font-size: 17px; font-weight: 700; }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+  <div class="lumo-phone" id="phone">
+    <div class="status-bar">
+      <span>9:41</span>
+      <span class="status-icons"><span>&#9679;&#9679;&#9679;</span><span>&#9662;</span><span class="battery">&#9632;</span></span>
+    </div>
+
+    <div class="header">
+      <div class="wordmark">
+        <div class="logo">L</div>
+        <span class="brand">Lumo</span>
+      </div>
+      <div class="header-right">
+        <button class="lang-pill" id="langPillBtn" type="button">
+          <span class="flag" id="curFlag">&#127760;</span>
+          <span class="code" id="curCode">Set</span>
+          <span class="chev">&#9662;</span>
+        </button>
+        <div class="avatar" id="avatarLetter">U</div>
+      </div>
+    </div>
+
+    <div class="greeting">
+      <div class="greeting-kicker">Good morning</div>
+      <div class="greeting-title">What shall we <em>practise?</em></div>
+    </div>
+
+    <div class="mascot-wrap">
+      <div class="mascot">
+        <div class="arm-l"></div>
+        <div class="arm-r"></div>
+        <div class="body-shape">
+          <div class="belt"></div>
+          <div class="belt-badge">Aa</div>
+        </div>
+        <div class="foot-l"></div>
+        <div class="foot-r"></div>
+        <div class="head" data-lumo-face>
+          <div class="ear-l"></div>
+          <div class="ear-r"></div>
+          <div class="brow-l"></div>
+          <div class="brow-r"></div>
+          <div class="eyes">
+            <div class="eye">
+              <div class="pupil" data-lumo-pupil><div class="pupil-glint"></div></div>
+              <div class="eyelid"></div>
+            </div>
+            <div class="eye">
+              <div class="pupil" data-lumo-pupil><div class="pupil-glint"></div></div>
+              <div class="eyelid two"></div>
+            </div>
+          </div>
+          <div class="mouth"><div class="teeth"></div><div class="tongue"></div></div>
+        </div>
+      </div>
+      <div class="mascot-shadow"></div>
+    </div>
+
+    <div class="options">
+      <button class="lumo-opt" type="button">
+        <span class="opt-icon" style="background:oklch(0.9 0.045 150);color:oklch(0.42 0.07 158);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v18M7 7v10M17 7v10M3 10v4M21 10v4"/></svg>
+        </span>
+        <span class="opt-text">
+          <span class="opt-title">Speaking</span>
+          <span class="opt-sub">Practise pronunciation aloud</span>
+        </span>
+        <span class="opt-chev">&rsaquo;</span>
+      </button>
+
+      <button class="lumo-opt" type="button">
+        <span class="opt-icon" style="background:oklch(0.92 0.04 78);color:oklch(0.5 0.09 66);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5A2 2 0 0 1 5 4h5v15H5a2 2 0 0 0-2 1.5zM21 5.5A2 2 0 0 0 19 4h-5v15h5a2 2 0 0 1 2 1.5z"/></svg>
+        </span>
+        <span class="opt-text">
+          <span class="opt-title">Reading</span>
+          <span class="opt-sub">Short stories at your level</span>
+        </span>
+        <span class="opt-chev">&rsaquo;</span>
+      </button>
+
+      <button class="lumo-opt" type="button">
+        <span class="opt-icon" style="background:oklch(0.91 0.015 120);color:oklch(0.44 0.02 140);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 8h9M5 16h5"/><circle cx="17" cy="8" r="2.4"/><circle cx="13" cy="16" r="2.4"/><path d="M19.4 16H19M10.6 8H10"/></svg>
+        </span>
+        <span class="opt-text">
+          <span class="opt-title">Settings</span>
+          <span class="opt-sub">Goals, reminders &amp; account</span>
+        </span>
+        <span class="opt-chev">&rsaquo;</span>
+      </button>
+    </div>
+
+    <div class="sheet-overlay hidden" id="sheetOverlay">
+      <div class="sheet-backdrop" id="sheetBackdrop"></div>
+      <div class="sheet">
+        <div class="sheet-handle-wrap"><div class="sheet-handle"></div></div>
+        <div class="sheet-header">
+          <div class="sheet-kicker" id="sheetKicker">Welcome to Lumo</div>
+          <div class="sheet-title">Choose your language</div>
+          <div class="sheet-desc">We'll teach English in the language you know best.</div>
+        </div>
+        <div class="sheet-list" id="sheetList"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ---- name from URL / localStorage ----
+  const params = new URLSearchParams(window.location.search);
+  const nameFromUrl = params.get('name');
+  let displayName = nameFromUrl || (function () {
+    try { return localStorage.getItem('lumo:name') || ''; } catch (e) { return ''; }
+  })();
+  try { if (nameFromUrl) localStorage.setItem('lumo:name', nameFromUrl); } catch (e) {}
+
+  const avatarLetter = document.getElementById('avatarLetter');
+  avatarLetter.textContent = displayName ? displayName.charAt(0).toUpperCase() : 'U';
+
+  // ---- language state ----
+  const LANGUAGES = [
+    { code: 'pa', flag: '\uD83C\uDDEE\uD83C\uDDF3', native: '\u0A2A\u0A70\u0A1C\u0A3E\u0A2C\u0A40', en: 'Punjabi' },
+    { code: 'hi', flag: '\uD83C\uDDEE\uD83C\uDDF3', native: '\u0939\u093F\u0928\u094D\u0926\u0940', en: 'Hindi' },
+  ];
+
+  let currentLang = null;
+  try { currentLang = localStorage.getItem('lumo:lang'); } catch (e) {}
+  let sheetOpen = !currentLang; // first run: force the picker open
+
+  const curFlag = document.getElementById('curFlag');
+  const curCode = document.getElementById('curCode');
+  const sheetOverlay = document.getElementById('sheetOverlay');
+  const sheetKicker = document.getElementById('sheetKicker');
+  const sheetList = document.getElementById('sheetList');
+  const langPillBtn = document.getElementById('langPillBtn');
+  const sheetBackdrop = document.getElementById('sheetBackdrop');
+
+  function renderLangPill() {
+    const cur = LANGUAGES.find((l) => l.code === currentLang);
+    curFlag.textContent = cur ? cur.flag : '\uD83C\uDF10';
+    curCode.textContent = cur ? cur.code.toUpperCase() : 'Set';
+  }
+
+  function renderSheetList() {
+    sheetList.innerHTML = '';
+    LANGUAGES.forEach((lang) => {
+      const selected = lang.code === currentLang;
+      const row = document.createElement('div');
+      row.className = 'lumo-lang' + (selected ? ' selected' : '');
+      row.innerHTML = `
+        <span class="lang-flag">${lang.flag}</span>
+        <span class="lang-text">
+          <span class="lang-native">${lang.native}</span>
+          <span class="lang-en">${lang.en}</span>
+        </span>
+        ${selected ? '<span class="lang-check">&#10003;</span>' : ''}
+      `;
+      row.addEventListener('click', () => {
+        currentLang = lang.code;
+        try { localStorage.setItem('lumo:lang', currentLang); } catch (e) {}
+        sheetOpen = false;
+        renderAll();
+      });
+      sheetList.appendChild(row);
+    });
+  }
+
+  function renderAll() {
+    renderLangPill();
+    renderSheetList();
+    sheetKicker.textContent = currentLang ? 'I speak' : 'Welcome to Lumo';
+    sheetOverlay.classList.toggle('hidden', !sheetOpen);
+  }
+
+  langPillBtn.addEventListener('click', () => { sheetOpen = true; renderAll(); });
+  sheetBackdrop.addEventListener('click', () => {
+    if (currentLang) { sheetOpen = false; renderAll(); } // can only dismiss once a language is chosen
+  });
+
+  renderAll();
+
+  // ---- mascot eye tracking ----
+  const target = { x: 0, y: 0 };
+  const cur = { x: 0, y: 0 };
+  let lastMove = 0;
+  let nextGlance = 0;
+
+  function onMove(e) {
+    const face = document.querySelector('[data-lumo-face]');
+    if (!face) return;
+    const r = face.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height * 0.42;
+    const dx = e.clientX - cx;
+    const dy = e.clientY - cy;
+    const max = 8;
+    target.x = Math.max(-1, Math.min(1, dx / 170)) * max;
+    target.y = Math.max(-1, Math.min(1, dy / 170)) * max;
+    lastMove = Date.now();
+  }
+  window.addEventListener('pointermove', onMove);
+
+  function loop() {
+    const now = Date.now();
+    if (now - lastMove > 2200) {
+      if (now > nextGlance) {
+        target.x = (Math.random() * 2 - 1) * 6;
+        target.y = (Math.random() * 2 - 1) * 4;
+        nextGlance = now + 1300 + Math.random() * 1700;
+      }
+    }
+    cur.x += (target.x - cur.x) * 0.12;
+    cur.y += (target.y - cur.y) * 0.12;
+    document.querySelectorAll('[data-lumo-pupil]').forEach((p) => {
+      p.style.transform = `translate(${cur.x.toFixed(2)}px, ${cur.y.toFixed(2)}px)`;
+    });
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+</script>
+</body>
+</html>

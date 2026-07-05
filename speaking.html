@@ -379,16 +379,33 @@
     return matched / targetWords.length;
   }
 
-  // Show the auto-feedback, then ask the learner to confirm — this is the interactive step:
-  // Lumo's guess is just a hint, the learner has the final say via Agree / Try again.
+  // Speak the result out loud — English for a pass, Punjabi for a retry.
+  // (Punjabi voice quality depends on the browser/OS's installed voices; most
+  // desktop Chrome installs include one, but it can fall back to a default voice.)
+  function speakResult(isGood) {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const utter = isGood
+      ? new SpeechSynthesisUtterance('Well done!')
+      : new SpeechSynthesisUtterance('ਨਹੀਂ, ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ');
+    utter.lang = isGood ? 'en-US' : 'pa-IN';
+    utter.rate = 0.95;
+    window.speechSynthesis.speak(utter);
+  }
+
+  // Show the auto-feedback, speak the result, then ask the learner to confirm —
+  // this is the interactive step: Lumo's guess is just a hint and a spoken nudge,
+  // the learner still has the final say via Agree / Try again.
   function showFeedbackAndConfirm(ratio, heardText) {
     const fb = document.getElementById('feedback');
-    let cls, msg;
-    if (ratio >= 0.8) { cls = 'good'; msg = 'That sounded right to me!'; }
-    else if (ratio >= 0.4) { cls = 'ok'; msg = 'Close — some words may not have come through clearly.'; }
-    else { cls = 'bad'; msg = "I didn't quite catch that."; }
+    let cls, msg, isGood;
+    if (ratio >= 0.8) { cls = 'good'; msg = 'That sounded right to me!'; isGood = true; }
+    else if (ratio >= 0.4) { cls = 'ok'; msg = 'Close — some words may not have come through clearly.'; isGood = false; }
+    else { cls = 'bad'; msg = "I didn't quite catch that."; isGood = false; }
     fb.className = 'feedback show ' + cls;
     fb.innerHTML = msg + (heardText ? `<span class="heard">Lumo heard: "${heardText}"</span>` : '');
+
+    speakResult(isGood);
 
     document.getElementById('controlsRow').classList.add('hidden');
     document.getElementById('confirmRow').classList.add('show');

@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lumo — Speaking</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@400;500;600;700&family=Noto+Sans+Gurmukhi:wght@500;600&display=swap" rel="stylesheet">
+<script src="data/content.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    display: flex; align-items: flex-start; justify-content: center;
+    min-height: 100vh; background: #e7e3d8;
+    font-family: 'Hanken Grotesk', sans-serif; color: #211E18;
+  }
+  .shell { width: 100%; max-width: 480px; min-height: 100vh; background: #F4F1EA; padding: 30px 26px 40px; }
+  @media (min-width: 481px) { .shell { box-shadow: 0 30px 80px -30px rgba(40,34,22,0.35); } }
+
+  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .back-link { display: flex; align-items: center; gap: 6px; color: #6E6656; text-decoration: none; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .wordmark { display: flex; align-items: center; gap: 9px; }
+  .logo { width: 28px; height: 28px; border-radius: 8px; background: oklch(0.48 0.058 158); display: flex; align-items: center; justify-content: center; color: #F4F1EA; font-family: 'Instrument Serif', serif; font-size: 17px; }
+  .brand { font-family: 'Instrument Serif', serif; font-size: 19px; }
+
+  .kicker { font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: oklch(0.48 0.058 158); font-weight: 600; margin-bottom: 6px; }
+  h1 { font-family: 'Instrument Serif', serif; font-size: 32px; line-height: 1.1; margin: 0 0 8px; }
+  .sub { color: #6E6656; font-size: 15px; margin: 0 0 26px; }
+
+  /* ---- level select ---- */
+  .level-card {
+    display: block; width: 100%; text-align: left; padding: 20px 22px; margin-bottom: 14px;
+    border: 1px solid rgba(33,30,24,0.1); border-radius: 20px; background: rgba(255,255,255,0.7);
+    cursor: pointer; transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  }
+  .level-card:hover { transform: translateY(-2px); background: #fff; border-color: rgba(33,30,24,0.18); }
+  .level-card:active { transform: scale(0.99); }
+  .level-title { font-size: 19px; font-weight: 700; margin-bottom: 4px; }
+  .level-desc { font-size: 14px; color: #8A8172; margin-bottom: 10px; }
+  .level-meta { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #6E6656; }
+  .level-badge { background: oklch(0.92 0.04 150); color: oklch(0.4 0.06 158); font-weight: 600; padding: 3px 10px; border-radius: 999px; font-size: 12px; }
+
+  /* ---- practice ---- */
+  .progress-bar { height: 6px; border-radius: 3px; background: rgba(33,30,24,0.08); overflow: hidden; margin-bottom: 22px; }
+  .progress-fill { height: 100%; background: oklch(0.48 0.058 158); border-radius: 3px; transition: width 0.3s ease; width: 0%; }
+
+  .phrase-card {
+    background: rgba(255,255,255,0.75); border: 1px solid rgba(33,30,24,0.1); border-radius: 22px;
+    padding: 30px 24px; text-align: center; margin-bottom: 20px;
+  }
+  .phrase-en { font-family: 'Instrument Serif', serif; font-size: 27px; line-height: 1.3; margin-bottom: 14px; }
+  .phrase-pa { font-family: 'Noto Sans Gurmukhi', sans-serif; font-size: 20px; color: oklch(0.42 0.07 158); margin-bottom: 4px; }
+  .phrase-translit { font-size: 14px; color: #9A917F; font-style: italic; }
+
+  .controls { display: flex; gap: 12px; margin-bottom: 16px; }
+  .ctrl-btn {
+    flex: 1; padding: 15px; border-radius: 16px; border: none; font-size: 15px; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: transform 0.15s ease, background 0.2s ease;
+  }
+  .ctrl-btn:active { transform: scale(0.97); }
+  .btn-listen { background: rgba(255,255,255,0.8); border: 1px solid rgba(33,30,24,0.14); color: #211E18; }
+  .btn-listen:hover { background: #fff; }
+  .btn-speak { background: oklch(0.48 0.058 158); color: #F4F1EA; }
+  .btn-speak:hover { background: oklch(0.43 0.06 158); }
+  .btn-speak.listening { background: oklch(0.58 0.15 25); }
+
+  .feedback { min-height: 64px; border-radius: 16px; padding: 14px 18px; margin-bottom: 16px; font-size: 14px; display: none; }
+  .feedback.show { display: block; }
+  .feedback.good { background: oklch(0.93 0.04 150); color: oklch(0.35 0.07 158); }
+  .feedback.ok { background: oklch(0.94 0.06 85); color: oklch(0.42 0.08 70); }
+  .feedback.bad { background: oklch(0.93 0.05 25); color: oklch(0.45 0.1 25); }
+  .feedback .heard { display: block; margin-top: 4px; color: inherit; opacity: 0.85; }
+
+  .next-row { display: flex; gap: 12px; }
+  .btn-secondary, .btn-primary {
+    flex: 1; padding: 15px; border-radius: 16px; border: none; font-size: 15px; font-weight: 600; cursor: pointer;
+    transition: transform 0.15s ease, background 0.2s ease;
+  }
+  .btn-secondary:active, .btn-primary:active { transform: scale(0.97); }
+  .btn-secondary { background: transparent; border: 1px solid rgba(33,30,24,0.14); color: #6E6656; }
+  .btn-primary { background: #211E18; color: #F4F1EA; }
+  .btn-primary:hover { background: #383327; }
+
+  .unsupported-note { font-size: 13px; color: #8A8172; text-align: center; margin-top: 6px; }
+
+  /* ---- summary ---- */
+  .summary-score { text-align: center; margin: 30px 0; }
+  .summary-score .big { font-family: 'Instrument Serif', serif; font-size: 56px; }
+  .summary-score .label { color: #8A8172; font-size: 14px; margin-top: 4px; }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="topbar">
+    <span class="back-link" id="backBtn">&larr; Dashboard</span>
+    <div class="wordmark"><div class="logo">L</div><span class="brand">Lumo</span></div>
+  </div>
+
+  <!-- ===== VIEW: level select ===== -->
+  <div id="levelView">
+    <div class="kicker">Speaking</div>
+    <h1>Choose your level</h1>
+    <p class="sub">Practise saying real phrases aloud — Lumo listens and gives you feedback.</p>
+    <div id="levelList"></div>
+  </div>
+
+  <!-- ===== VIEW: practice ===== -->
+  <div id="practiceView" class="hidden">
+    <div class="kicker" id="practiceLevelLabel">Beginner</div>
+    <h1 id="practiceTitle">Let's practise</h1>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+    <div class="phrase-card">
+      <div class="phrase-en" id="phraseEn"></div>
+      <div class="phrase-pa" id="phrasePa"></div>
+      <div class="phrase-translit" id="phraseTranslit"></div>
+    </div>
+
+    <div class="controls">
+      <button class="ctrl-btn btn-listen" id="listenBtn" type="button">&#128266; Listen</button>
+      <button class="ctrl-btn btn-speak" id="speakBtn" type="button">&#127908; Speak</button>
+    </div>
+    <div class="unsupported-note hidden" id="unsupportedNote">
+      Speech recognition isn't supported in this browser — try Chrome. You can still listen and mark your attempt manually.
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="next-row">
+      <button class="btn-secondary" id="skipBtn" type="button">Skip</button>
+      <button class="btn-primary" id="nextBtn" type="button" disabled>Next</button>
+    </div>
+  </div>
+
+  <!-- ===== VIEW: summary ===== -->
+  <div id="summaryView" class="hidden">
+    <div class="kicker" id="summaryLevelLabel">Beginner</div>
+    <h1>Session complete</h1>
+    <div class="summary-score">
+      <div class="big" id="summaryScore">0/10</div>
+      <div class="label">phrases practised well</div>
+    </div>
+    <div class="next-row">
+      <button class="btn-secondary" id="backToLevelsBtn" type="button">Choose another level</button>
+      <button class="btn-primary" id="practiceAgainBtn" type="button">Practise again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const name = params.get('name') || (function () { try { return localStorage.getItem('lumo:name') || ''; } catch (e) { return ''; } })();
+
+  const levelView = document.getElementById('levelView');
+  const practiceView = document.getElementById('practiceView');
+  const summaryView = document.getElementById('summaryView');
+  const levelList = document.getElementById('levelList');
+
+  document.getElementById('backBtn').addEventListener('click', () => {
+    if (!practiceView.classList.contains('hidden')) { showLevels(); return; }
+    window.location.href = 'dashboard.html' + (name ? ('?name=' + encodeURIComponent(name)) : '');
+  });
+
+  // ---- build level cards from the content database ----
+  function bestScoreFor(levelKey) {
+    try { return parseInt(localStorage.getItem('lumo:speaking:best:' + levelKey) || '0', 10); } catch (e) { return 0; }
+  }
+
+  Object.keys(LUMO_CONTENT).forEach((key) => {
+    const level = LUMO_CONTENT[key];
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'level-card';
+    const best = bestScoreFor(key);
+    card.innerHTML = `
+      <div class="level-title">${level.label}</div>
+      <div class="level-desc">${level.description}</div>
+      <div class="level-meta">
+        <span class="level-badge">${level.phrases.length} phrases</span>
+        ${best ? `<span>Best: ${best}/${level.phrases.length}</span>` : ''}
+      </div>
+    `;
+    card.addEventListener('click', () => startLevel(key));
+    levelList.appendChild(card);
+  });
+
+  function showLevels() {
+    levelView.classList.remove('hidden');
+    practiceView.classList.add('hidden');
+    summaryView.classList.add('hidden');
+    // refresh best-score labels
+    levelList.innerHTML = '';
+    Object.keys(LUMO_CONTENT).forEach((key) => {
+      const level = LUMO_CONTENT[key];
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'level-card';
+      const best = bestScoreFor(key);
+      card.innerHTML = `
+        <div class="level-title">${level.label}</div>
+        <div class="level-desc">${level.description}</div>
+        <div class="level-meta">
+          <span class="level-badge">${level.phrases.length} phrases</span>
+          ${best ? `<span>Best: ${best}/${level.phrases.length}</span>` : ''}
+        </div>
+      `;
+      card.addEventListener('click', () => startLevel(key));
+      levelList.appendChild(card);
+    });
+  }
+
+  // ---- practice session state ----
+  let session = null; // { levelKey, index, goodCount }
+
+  function startLevel(levelKey) {
+    session = { levelKey, index: 0, goodCount: 0 };
+    levelView.classList.add('hidden');
+    summaryView.classList.add('hidden');
+    practiceView.classList.remove('hidden');
+    document.getElementById('practiceLevelLabel').textContent = LUMO_CONTENT[levelKey].label;
+    renderPhrase();
+  }
+
+  function currentPhrase() {
+    return LUMO_CONTENT[session.levelKey].phrases[session.index];
+  }
+
+  function renderPhrase() {
+    const total = LUMO_CONTENT[session.levelKey].phrases.length;
+    const phrase = currentPhrase();
+    document.getElementById('practiceTitle').textContent = `Phrase ${session.index + 1} of ${total}`;
+    document.getElementById('progressFill').style.width = ((session.index) / total * 100) + '%';
+    document.getElementById('phraseEn').textContent = phrase.en;
+    document.getElementById('phrasePa').textContent = phrase.pa_script;
+    document.getElementById('phraseTranslit').textContent = phrase.pa_translit;
+    const fb = document.getElementById('feedback');
+    fb.className = 'feedback';
+    fb.textContent = '';
+    document.getElementById('nextBtn').disabled = true;
+  }
+
+  function advance() {
+    const total = LUMO_CONTENT[session.levelKey].phrases.length;
+    if (session.index + 1 >= total) {
+      finishSession();
+    } else {
+      session.index += 1;
+      renderPhrase();
+    }
+  }
+
+  function finishSession() {
+    const total = LUMO_CONTENT[session.levelKey].phrases.length;
+    practiceView.classList.add('hidden');
+    summaryView.classList.remove('hidden');
+    document.getElementById('summaryLevelLabel').textContent = LUMO_CONTENT[session.levelKey].label;
+    document.getElementById('summaryScore').textContent = `${session.goodCount}/${total}`;
+    try {
+      const key = 'lumo:speaking:best:' + session.levelKey;
+      const prevBest = parseInt(localStorage.getItem(key) || '0', 10);
+      if (session.goodCount > prevBest) localStorage.setItem(key, String(session.goodCount));
+    } catch (e) {}
+  }
+
+  document.getElementById('skipBtn').addEventListener('click', advance);
+  document.getElementById('nextBtn').addEventListener('click', advance);
+  document.getElementById('backToLevelsBtn').addEventListener('click', showLevels);
+  document.getElementById('practiceAgainBtn').addEventListener('click', () => startLevel(session.levelKey));
+
+  // ---- text-to-speech: "Listen" ----
+  document.getElementById('listenBtn').addEventListener('click', () => {
+    if (!session) return;
+    if (!('speechSynthesis' in window)) return;
+    const utter = new SpeechSynthesisUtterance(currentPhrase().en);
+    utter.lang = 'en-US';
+    utter.rate = 0.92;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utter);
+  });
+
+  // ---- speech recognition: "Speak" ----
+  const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const speakBtn = document.getElementById('speakBtn');
+  let recognizer = null;
+  let listening = false;
+
+  function normalize(str) {
+    return str.toLowerCase().replace(/[^\w\s']/g, '').trim().split(/\s+/).filter(Boolean);
+  }
+
+  function scoreAttempt(target, heard) {
+    const targetWords = normalize(target);
+    const heardWords = new Set(normalize(heard));
+    if (targetWords.length === 0) return 0;
+    const matched = targetWords.filter((w) => heardWords.has(w)).length;
+    return matched / targetWords.length;
+  }
+
+  function showFeedback(ratio, heardText) {
+    const fb = document.getElementById('feedback');
+    fb.classList.add('show');
+    let cls, msg;
+    if (ratio >= 0.8) { cls = 'good'; msg = 'Great job! That sounded right.'; session.goodCount += 1; }
+    else if (ratio >= 0.4) { cls = 'ok'; msg = 'Close — try saying it a bit more clearly.'; }
+    else { cls = 'bad'; msg = "Let's try that again."; }
+    fb.className = 'feedback show ' + cls;
+    fb.innerHTML = msg + (heardText ? `<span class="heard">Lumo heard: "${heardText}"</span>` : '');
+    document.getElementById('nextBtn').disabled = false;
+  }
+
+  if (SpeechRecognitionCtor) {
+    recognizer = new SpeechRecognitionCtor();
+    recognizer.lang = 'en-US';
+    recognizer.interimResults = false;
+    recognizer.maxAlternatives = 1;
+
+    recognizer.onresult = (event) => {
+      const heard = event.results[0][0].transcript;
+      const ratio = scoreAttempt(currentPhrase().en, heard);
+      showFeedback(ratio, heard);
+    };
+    recognizer.onerror = () => { setListening(false); };
+    recognizer.onend = () => { setListening(false); };
+
+    speakBtn.addEventListener('click', () => {
+      if (!session) return;
+      if (listening) { recognizer.stop(); return; }
+      try {
+        recognizer.start();
+        setListening(true);
+      } catch (e) { /* already started */ }
+    });
+  } else {
+    document.getElementById('unsupportedNote').classList.remove('hidden');
+    speakBtn.textContent = '\u2705 Mark as practised';
+    speakBtn.addEventListener('click', () => {
+      if (!session) return;
+      showFeedback(1, '');
+    });
+  }
+
+  function setListening(on) {
+    listening = on;
+    speakBtn.classList.toggle('listening', on);
+    speakBtn.innerHTML = on ? '&#9679; Listening&hellip;' : '&#127908; Speak';
+  }
+</script>
+</body>
+</html>

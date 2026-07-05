@@ -34,18 +34,16 @@
   .lumo-opt:active { transform: scale(0.985); }
 
   .lumo-phone {
-    width: 390px; height: 844px; position: relative; overflow: hidden;
+    width: 100%; max-width: 480px; min-height: 100vh; position: relative; overflow: hidden;
     background: #F4F1EA; font-family: 'Hanken Grotesk', sans-serif; color: #211E18;
-    border-radius: 44px; box-shadow: 0 40px 90px -30px rgba(40,34,22,0.5), 0 0 0 1px rgba(0,0,0,0.04);
     display: flex; flex-direction: column;
     animation: lumoScreenIn 0.5s cubic-bezier(0.22,0.9,0.28,1) both;
   }
+  @media (min-width: 481px) {
+    .lumo-phone { box-shadow: 0 30px 80px -30px rgba(40,34,22,0.35); }
+  }
 
-  .status-bar { display: flex; justify-content: space-between; align-items: center; padding: 16px 30px 0; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; }
-  .status-icons { display: flex; gap: 6px; align-items: center; opacity: 0.75; font-size: 12px; }
-  .status-icons .battery { border: 1.5px solid currentColor; border-radius: 3px; padding: 0 3px; }
-
-  .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px 0; animation: lumoUp 0.6s ease both; }
+  .header { display: flex; justify-content: space-between; align-items: center; padding: 30px 30px 0; animation: lumoUp 0.6s ease both; }
   .wordmark { display: flex; align-items: center; gap: 9px; }
   .logo { width: 30px; height: 30px; border-radius: 9px; background: oklch(0.48 0.058 158); display: flex; align-items: center; justify-content: center; color: #F4F1EA; font-family: 'Instrument Serif', serif; font-size: 20px; line-height: 1; }
   .brand { font-family: 'Instrument Serif', serif; font-size: 22px; }
@@ -113,7 +111,7 @@
   .opt-sub { display: block; font-size: 13px; color: #8A8172; margin-top: 2px; }
   .opt-chev { color: #B8AF9C; font-size: 20px; }
 
-  .sheet-overlay { position: absolute; inset: 0; z-index: 40; border-radius: 44px; overflow: hidden; }
+  .sheet-overlay { position: absolute; inset: 0; z-index: 40; overflow: hidden; }
   .sheet-backdrop { position: absolute; inset: 0; background: rgba(30,26,18,0.32); backdrop-filter: blur(2px); animation: lumoFade 0.25s ease both; cursor: pointer; }
   .sheet {
     position: absolute; left: 0; right: 0; bottom: 0; max-height: 78%; background: #F7F4EE; border-radius: 30px 30px 44px 44px;
@@ -140,11 +138,6 @@
 </head>
 <body>
   <div class="lumo-phone" id="phone">
-    <div class="status-bar">
-      <span>9:41</span>
-      <span class="status-icons"><span>&#9679;&#9679;&#9679;</span><span>&#9662;</span><span class="battery">&#9632;</span></span>
-    </div>
-
     <div class="header">
       <div class="wordmark">
         <div class="logo">L</div>
@@ -197,7 +190,7 @@
     </div>
 
     <div class="options">
-      <button class="lumo-opt" type="button">
+      <button class="lumo-opt" type="button" onclick="goToSpeaking()">
         <span class="opt-icon" style="background:oklch(0.9 0.045 150);color:oklch(0.42 0.07 158);">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v18M7 7v10M17 7v10M3 10v4M21 10v4"/></svg>
         </span>
@@ -208,24 +201,24 @@
         <span class="opt-chev">&rsaquo;</span>
       </button>
 
-      <button class="lumo-opt" type="button">
+      <button class="lumo-opt" type="button" disabled style="opacity:0.55;cursor:default;">
         <span class="opt-icon" style="background:oklch(0.92 0.04 78);color:oklch(0.5 0.09 66);">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5A2 2 0 0 1 5 4h5v15H5a2 2 0 0 0-2 1.5zM21 5.5A2 2 0 0 0 19 4h-5v15h5a2 2 0 0 1 2 1.5z"/></svg>
         </span>
         <span class="opt-text">
           <span class="opt-title">Reading</span>
-          <span class="opt-sub">Short stories at your level</span>
+          <span class="opt-sub">Coming soon</span>
         </span>
         <span class="opt-chev">&rsaquo;</span>
       </button>
 
-      <button class="lumo-opt" type="button">
+      <button class="lumo-opt" type="button" disabled style="opacity:0.55;cursor:default;">
         <span class="opt-icon" style="background:oklch(0.91 0.015 120);color:oklch(0.44 0.02 140);">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 8h9M5 16h5"/><circle cx="17" cy="8" r="2.4"/><circle cx="13" cy="16" r="2.4"/><path d="M19.4 16H19M10.6 8H10"/></svg>
         </span>
         <span class="opt-text">
           <span class="opt-title">Settings</span>
-          <span class="opt-sub">Goals, reminders &amp; account</span>
+          <span class="opt-sub">Coming soon</span>
         </span>
         <span class="opt-chev">&rsaquo;</span>
       </button>
@@ -256,6 +249,11 @@
 
   const avatarLetter = document.getElementById('avatarLetter');
   avatarLetter.textContent = displayName ? displayName.charAt(0).toUpperCase() : 'U';
+
+  function goToSpeaking() {
+    const q = displayName ? ('?name=' + encodeURIComponent(displayName)) : '';
+    window.location.href = 'speaking.html' + q;
+  }
 
   // ---- language state ----
   const LANGUAGES = [

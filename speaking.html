@@ -29,18 +29,20 @@
   h1 { font-family: 'Instrument Serif', serif; font-size: 32px; line-height: 1.1; margin: 0 0 8px; }
   .sub { color: #6E6656; font-size: 15px; margin: 0 0 26px; }
 
-  /* ---- level select ---- */
-  .level-card {
+  /* ---- card list (levels / topics / categories) ---- */
+  .list-card {
     display: block; width: 100%; text-align: left; padding: 20px 22px; margin-bottom: 14px;
     border: 1px solid rgba(33,30,24,0.1); border-radius: 20px; background: rgba(255,255,255,0.7);
     cursor: pointer; transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
   }
-  .level-card:hover { transform: translateY(-2px); background: #fff; border-color: rgba(33,30,24,0.18); }
-  .level-card:active { transform: scale(0.99); }
-  .level-title { font-size: 19px; font-weight: 700; margin-bottom: 4px; }
-  .level-desc { font-size: 14px; color: #8A8172; margin-bottom: 10px; }
-  .level-meta { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #6E6656; }
-  .level-badge { background: oklch(0.92 0.04 150); color: oklch(0.4 0.06 158); font-weight: 600; padding: 3px 10px; border-radius: 999px; font-size: 12px; }
+  .list-card:hover { transform: translateY(-2px); background: #fff; border-color: rgba(33,30,24,0.18); }
+  .list-card:active { transform: scale(0.99); }
+  .list-title { font-size: 19px; font-weight: 700; margin-bottom: 4px; }
+  .list-desc { font-size: 14px; color: #8A8172; margin-bottom: 10px; }
+  .list-meta { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #6E6656; }
+  .list-badge { background: oklch(0.92 0.04 150); color: oklch(0.4 0.06 158); font-weight: 600; padding: 3px 10px; border-radius: 999px; font-size: 12px; }
+  .section-label { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #9A917F; font-weight: 700; margin: 26px 0 10px; }
+  .section-label:first-of-type { margin-top: 0; }
 
   /* ---- practice ---- */
   .progress-bar { height: 6px; border-radius: 3px; background: rgba(33,30,24,0.08); overflow: hidden; margin-bottom: 22px; }
@@ -50,7 +52,7 @@
     background: rgba(255,255,255,0.75); border: 1px solid rgba(33,30,24,0.1); border-radius: 22px;
     padding: 30px 24px; text-align: center; margin-bottom: 20px;
   }
-  .phrase-en { font-family: 'Instrument Serif', serif; font-size: 27px; line-height: 1.3; margin-bottom: 14px; }
+  .phrase-en { font-family: 'Instrument Serif', serif; font-size: 25px; line-height: 1.32; margin-bottom: 14px; }
   .phrase-pa { font-family: 'Noto Sans Gurmukhi', sans-serif; font-size: 20px; color: oklch(0.42 0.07 158); margin-bottom: 4px; }
   .phrase-translit { font-size: 14px; color: #9A917F; font-style: italic; }
 
@@ -67,12 +69,23 @@
   .btn-speak:hover { background: oklch(0.43 0.06 158); }
   .btn-speak.listening { background: oklch(0.58 0.15 25); }
 
-  .feedback { min-height: 64px; border-radius: 16px; padding: 14px 18px; margin-bottom: 16px; font-size: 14px; display: none; }
+  .feedback { border-radius: 16px; padding: 14px 18px; margin-bottom: 16px; font-size: 14px; display: none; }
   .feedback.show { display: block; }
   .feedback.good { background: oklch(0.93 0.04 150); color: oklch(0.35 0.07 158); }
   .feedback.ok { background: oklch(0.94 0.06 85); color: oklch(0.42 0.08 70); }
   .feedback.bad { background: oklch(0.93 0.05 25); color: oklch(0.45 0.1 25); }
   .feedback .heard { display: block; margin-top: 4px; color: inherit; opacity: 0.85; }
+
+  .confirm-row { display: none; gap: 12px; margin-bottom: 16px; }
+  .confirm-row.show { display: flex; }
+  .btn-agree, .btn-disagree {
+    flex: 1; padding: 15px; border-radius: 16px; border: none; font-size: 15px; font-weight: 600; cursor: pointer;
+    transition: transform 0.15s ease, background 0.2s ease;
+  }
+  .btn-agree:active, .btn-disagree:active { transform: scale(0.97); }
+  .btn-agree { background: oklch(0.48 0.058 158); color: #F4F1EA; }
+  .btn-agree:hover { background: oklch(0.43 0.06 158); }
+  .btn-disagree { background: transparent; border: 1px solid rgba(33,30,24,0.14); color: #6E6656; }
 
   .next-row { display: flex; gap: 12px; }
   .btn-secondary, .btn-primary {
@@ -83,6 +96,7 @@
   .btn-secondary { background: transparent; border: 1px solid rgba(33,30,24,0.14); color: #6E6656; }
   .btn-primary { background: #211E18; color: #F4F1EA; }
   .btn-primary:hover { background: #383327; }
+  .btn-primary:disabled { opacity: 0.4; cursor: default; }
 
   .unsupported-note { font-size: 13px; color: #8A8172; text-align: center; margin-top: 6px; }
 
@@ -97,16 +111,23 @@
 <body>
 <div class="shell">
   <div class="topbar">
-    <span class="back-link" id="backBtn">&larr; Dashboard</span>
+    <span class="back-link" id="backBtn">&larr; Back</span>
     <div class="wordmark"><div class="logo">L</div><span class="brand">Lumo</span></div>
   </div>
 
-  <!-- ===== VIEW: level select ===== -->
-  <div id="levelView">
+  <!-- ===== VIEW: deck select (levels + topics) ===== -->
+  <div id="deckView">
     <div class="kicker">Speaking</div>
-    <h1>Choose your level</h1>
+    <h1>What shall we practise?</h1>
     <p class="sub">Practise saying real phrases aloud — Lumo listens and gives you feedback.</p>
-    <div id="levelList"></div>
+    <div id="deckList"></div>
+  </div>
+
+  <!-- ===== VIEW: category select (for topics like Day to Day Conversation) ===== -->
+  <div id="categoryView" class="hidden">
+    <div class="kicker" id="categoryKicker">Day to Day Conversation</div>
+    <h1>Choose a situation</h1>
+    <div id="categoryList"></div>
   </div>
 
   <!-- ===== VIEW: practice ===== -->
@@ -121,7 +142,7 @@
       <div class="phrase-translit" id="phraseTranslit"></div>
     </div>
 
-    <div class="controls">
+    <div class="controls" id="controlsRow">
       <button class="ctrl-btn btn-listen" id="listenBtn" type="button">&#128266; Listen</button>
       <button class="ctrl-btn btn-speak" id="speakBtn" type="button">&#127908; Speak</button>
     </div>
@@ -130,6 +151,11 @@
     </div>
 
     <div class="feedback" id="feedback"></div>
+
+    <div class="confirm-row" id="confirmRow">
+      <button class="btn-agree" id="agreeBtn" type="button">&#128077; Yes, I said it right</button>
+      <button class="btn-disagree" id="disagreeBtn" type="button">Try again</button>
+    </div>
 
     <div class="next-row">
       <button class="btn-secondary" id="skipBtn" type="button">Skip</button>
@@ -146,7 +172,7 @@
       <div class="label">phrases practised well</div>
     </div>
     <div class="next-row">
-      <button class="btn-secondary" id="backToLevelsBtn" type="button">Choose another level</button>
+      <button class="btn-secondary" id="backToLevelsBtn" type="button">Choose another</button>
       <button class="btn-primary" id="practiceAgainBtn" type="button">Practise again</button>
     </div>
   </div>
@@ -156,112 +182,162 @@
   const params = new URLSearchParams(window.location.search);
   const name = params.get('name') || (function () { try { return localStorage.getItem('lumo:name') || ''; } catch (e) { return ''; } })();
 
-  const levelView = document.getElementById('levelView');
+  const deckView = document.getElementById('deckView');
+  const categoryView = document.getElementById('categoryView');
   const practiceView = document.getElementById('practiceView');
   const summaryView = document.getElementById('summaryView');
-  const levelList = document.getElementById('levelList');
+  const deckList = document.getElementById('deckList');
+  const categoryList = document.getElementById('categoryList');
+
+  // ---- navigation state ----
+  // session = { deckKey, categoryId (or null), phrases, index, goodCount }
+  let session = null;
+  let currentView = 'deck'; // 'deck' | 'category' | 'practice' | 'summary'
 
   document.getElementById('backBtn').addEventListener('click', () => {
-    if (!practiceView.classList.contains('hidden')) { showLevels(); return; }
+    if (currentView === 'practice') {
+      const deck = LUMO_CONTENT[session.deckKey];
+      if (deck.type === 'group') { showCategories(session.deckKey); return; }
+      showDecks(); return;
+    }
+    if (currentView === 'category') { showDecks(); return; }
     window.location.href = 'dashboard.html' + (name ? ('?name=' + encodeURIComponent(name)) : '');
   });
 
-  // ---- build level cards from the content database ----
-  function bestScoreFor(levelKey) {
-    try { return parseInt(localStorage.getItem('lumo:speaking:best:' + levelKey) || '0', 10); } catch (e) { return 0; }
+  function bestScoreKey(deckKey, categoryId) {
+    return 'lumo:speaking:best:' + deckKey + (categoryId ? (':' + categoryId) : '');
+  }
+  function bestScoreFor(deckKey, categoryId) {
+    try { return parseInt(localStorage.getItem(bestScoreKey(deckKey, categoryId)) || '0', 10); } catch (e) { return 0; }
   }
 
-  Object.keys(LUMO_CONTENT).forEach((key) => {
-    const level = LUMO_CONTENT[key];
-    const card = document.createElement('button');
-    card.type = 'button';
-    card.className = 'level-card';
-    const best = bestScoreFor(key);
-    card.innerHTML = `
-      <div class="level-title">${level.label}</div>
-      <div class="level-desc">${level.description}</div>
-      <div class="level-meta">
-        <span class="level-badge">${level.phrases.length} phrases</span>
-        ${best ? `<span>Best: ${best}/${level.phrases.length}</span>` : ''}
-      </div>
-    `;
-    card.addEventListener('click', () => startLevel(key));
-    levelList.appendChild(card);
-  });
-
-  function showLevels() {
-    levelView.classList.remove('hidden');
+  // ---- deck list (levels + topics) ----
+  function showDecks() {
+    currentView = 'deck';
+    deckView.classList.remove('hidden');
+    categoryView.classList.add('hidden');
     practiceView.classList.add('hidden');
     summaryView.classList.add('hidden');
-    // refresh best-score labels
-    levelList.innerHTML = '';
+
+    deckList.innerHTML = '';
+    let sawLevel = false, sawTopic = false;
     Object.keys(LUMO_CONTENT).forEach((key) => {
-      const level = LUMO_CONTENT[key];
+      const deck = LUMO_CONTENT[key];
+      if (deck.type === 'phrases' && !sawLevel) { addSectionLabel(deckList, 'Levels'); sawLevel = true; }
+      if (deck.type === 'group' && !sawTopic) { addSectionLabel(deckList, 'Topics'); sawTopic = true; }
+
       const card = document.createElement('button');
       card.type = 'button';
-      card.className = 'level-card';
-      const best = bestScoreFor(key);
-      card.innerHTML = `
-        <div class="level-title">${level.label}</div>
-        <div class="level-desc">${level.description}</div>
-        <div class="level-meta">
-          <span class="level-badge">${level.phrases.length} phrases</span>
-          ${best ? `<span>Best: ${best}/${level.phrases.length}</span>` : ''}
-        </div>
-      `;
-      card.addEventListener('click', () => startLevel(key));
-      levelList.appendChild(card);
+      card.className = 'list-card';
+      if (deck.type === 'phrases') {
+        const best = bestScoreFor(key, null);
+        card.innerHTML = `
+          <div class="list-title">${deck.label}</div>
+          <div class="list-desc">${deck.description}</div>
+          <div class="list-meta">
+            <span class="list-badge">${deck.phrases.length} phrases</span>
+            ${best ? `<span>Best: ${best}/${deck.phrases.length}</span>` : ''}
+          </div>`;
+        card.addEventListener('click', () => startPractice(key, null));
+      } else {
+        card.innerHTML = `
+          <div class="list-title">${deck.label}</div>
+          <div class="list-desc">${deck.description}</div>
+          <div class="list-meta"><span class="list-badge">${deck.categories.length} situations</span></div>`;
+        card.addEventListener('click', () => showCategories(key));
+      }
+      deckList.appendChild(card);
     });
   }
 
-  // ---- practice session state ----
-  let session = null; // { levelKey, index, goodCount }
+  function addSectionLabel(container, text) {
+    const label = document.createElement('div');
+    label.className = 'section-label';
+    label.textContent = text;
+    container.appendChild(label);
+  }
 
-  function startLevel(levelKey) {
-    session = { levelKey, index: 0, goodCount: 0 };
-    levelView.classList.add('hidden');
+  // ---- category list (inside a topic) ----
+  function showCategories(deckKey) {
+    currentView = 'category';
+    deckView.classList.add('hidden');
+    categoryView.classList.remove('hidden');
+    practiceView.classList.add('hidden');
+    summaryView.classList.add('hidden');
+
+    const deck = LUMO_CONTENT[deckKey];
+    document.getElementById('categoryKicker').textContent = deck.label;
+    categoryList.innerHTML = '';
+    deck.categories.forEach((cat) => {
+      const best = bestScoreFor(deckKey, cat.id);
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'list-card';
+      card.innerHTML = `
+        <div class="list-title">${cat.label}</div>
+        <div class="list-meta">
+          <span class="list-badge">${cat.phrases.length} phrases</span>
+          ${best ? `<span>Best: ${best}/${cat.phrases.length}</span>` : ''}
+        </div>`;
+      card.addEventListener('click', () => startPractice(deckKey, cat.id));
+      categoryList.appendChild(card);
+    });
+  }
+
+  // ---- practice session ----
+  function startPractice(deckKey, categoryId) {
+    const deck = LUMO_CONTENT[deckKey];
+    const phrases = categoryId ? deck.categories.find((c) => c.id === categoryId).phrases : deck.phrases;
+    const label = categoryId ? deck.categories.find((c) => c.id === categoryId).label : deck.label;
+
+    session = { deckKey, categoryId, phrases, label, index: 0, goodCount: 0 };
+    currentView = 'practice';
+    deckView.classList.add('hidden');
+    categoryView.classList.add('hidden');
     summaryView.classList.add('hidden');
     practiceView.classList.remove('hidden');
-    document.getElementById('practiceLevelLabel').textContent = LUMO_CONTENT[levelKey].label;
+    document.getElementById('practiceLevelLabel').textContent = label;
     renderPhrase();
   }
 
-  function currentPhrase() {
-    return LUMO_CONTENT[session.levelKey].phrases[session.index];
-  }
+  function currentPhrase() { return session.phrases[session.index]; }
 
   function renderPhrase() {
-    const total = LUMO_CONTENT[session.levelKey].phrases.length;
+    const total = session.phrases.length;
     const phrase = currentPhrase();
     document.getElementById('practiceTitle').textContent = `Phrase ${session.index + 1} of ${total}`;
-    document.getElementById('progressFill').style.width = ((session.index) / total * 100) + '%';
+    document.getElementById('progressFill').style.width = (session.index / total * 100) + '%';
     document.getElementById('phraseEn').textContent = phrase.en;
-    document.getElementById('phrasePa').textContent = phrase.pa_script;
-    document.getElementById('phraseTranslit').textContent = phrase.pa_translit;
+    document.getElementById('phrasePa').textContent = phrase.pa_script || '';
+    document.getElementById('phraseTranslit').textContent = phrase.pa_translit || '';
+
+    resetAttemptUI();
+  }
+
+  function resetAttemptUI() {
     const fb = document.getElementById('feedback');
     fb.className = 'feedback';
-    fb.textContent = '';
+    fb.innerHTML = '';
+    document.getElementById('confirmRow').classList.remove('show');
+    document.getElementById('controlsRow').classList.remove('hidden');
     document.getElementById('nextBtn').disabled = true;
   }
 
   function advance() {
-    const total = LUMO_CONTENT[session.levelKey].phrases.length;
-    if (session.index + 1 >= total) {
-      finishSession();
-    } else {
-      session.index += 1;
-      renderPhrase();
-    }
+    const total = session.phrases.length;
+    if (session.index + 1 >= total) { finishSession(); }
+    else { session.index += 1; renderPhrase(); }
   }
 
   function finishSession() {
-    const total = LUMO_CONTENT[session.levelKey].phrases.length;
+    currentView = 'summary';
+    const total = session.phrases.length;
     practiceView.classList.add('hidden');
     summaryView.classList.remove('hidden');
-    document.getElementById('summaryLevelLabel').textContent = LUMO_CONTENT[session.levelKey].label;
+    document.getElementById('summaryLevelLabel').textContent = session.label;
     document.getElementById('summaryScore').textContent = `${session.goodCount}/${total}`;
     try {
-      const key = 'lumo:speaking:best:' + session.levelKey;
+      const key = bestScoreKey(session.deckKey, session.categoryId);
       const prevBest = parseInt(localStorage.getItem(key) || '0', 10);
       if (session.goodCount > prevBest) localStorage.setItem(key, String(session.goodCount));
     } catch (e) {}
@@ -269,14 +345,16 @@
 
   document.getElementById('skipBtn').addEventListener('click', advance);
   document.getElementById('nextBtn').addEventListener('click', advance);
-  document.getElementById('backToLevelsBtn').addEventListener('click', showLevels);
-  document.getElementById('practiceAgainBtn').addEventListener('click', () => startLevel(session.levelKey));
+  document.getElementById('backToLevelsBtn').addEventListener('click', () => {
+    const deck = LUMO_CONTENT[session.deckKey];
+    if (deck.type === 'group') showCategories(session.deckKey); else showDecks();
+  });
+  document.getElementById('practiceAgainBtn').addEventListener('click', () => startPractice(session.deckKey, session.categoryId));
 
   // ---- text-to-speech: "Listen" ----
   document.getElementById('listenBtn').addEventListener('click', () => {
-    if (!session) return;
-    if (!('speechSynthesis' in window)) return;
-    const utter = new SpeechSynthesisUtterance(currentPhrase().en);
+    if (!session || !('speechSynthesis' in window)) return;
+    const utter = new SpeechSynthesisUtterance(currentPhrase().en.replace(/_{2,}/g, 'blank'));
     utter.lang = 'en-US';
     utter.rate = 0.92;
     window.speechSynthesis.cancel();
@@ -290,7 +368,7 @@
   let listening = false;
 
   function normalize(str) {
-    return str.toLowerCase().replace(/[^\w\s']/g, '').trim().split(/\s+/).filter(Boolean);
+    return str.toLowerCase().replace(/_{2,}/g, ' ').replace(/[^\w\s']/g, '').trim().split(/\s+/).filter(Boolean);
   }
 
   function scoreAttempt(target, heard) {
@@ -301,17 +379,30 @@
     return matched / targetWords.length;
   }
 
-  function showFeedback(ratio, heardText) {
+  // Show the auto-feedback, then ask the learner to confirm — this is the interactive step:
+  // Lumo's guess is just a hint, the learner has the final say via Agree / Try again.
+  function showFeedbackAndConfirm(ratio, heardText) {
     const fb = document.getElementById('feedback');
-    fb.classList.add('show');
     let cls, msg;
-    if (ratio >= 0.8) { cls = 'good'; msg = 'Great job! That sounded right.'; session.goodCount += 1; }
-    else if (ratio >= 0.4) { cls = 'ok'; msg = 'Close — try saying it a bit more clearly.'; }
-    else { cls = 'bad'; msg = "Let's try that again."; }
+    if (ratio >= 0.8) { cls = 'good'; msg = 'That sounded right to me!'; }
+    else if (ratio >= 0.4) { cls = 'ok'; msg = 'Close — some words may not have come through clearly.'; }
+    else { cls = 'bad'; msg = "I didn't quite catch that."; }
     fb.className = 'feedback show ' + cls;
     fb.innerHTML = msg + (heardText ? `<span class="heard">Lumo heard: "${heardText}"</span>` : '');
-    document.getElementById('nextBtn').disabled = false;
+
+    document.getElementById('controlsRow').classList.add('hidden');
+    document.getElementById('confirmRow').classList.add('show');
   }
+
+  document.getElementById('agreeBtn').addEventListener('click', () => {
+    session.goodCount += 1;
+    document.getElementById('confirmRow').classList.remove('show');
+    document.getElementById('nextBtn').disabled = false;
+    advance();
+  });
+  document.getElementById('disagreeBtn').addEventListener('click', () => {
+    resetAttemptUI();
+  });
 
   if (SpeechRecognitionCtor) {
     recognizer = new SpeechRecognitionCtor();
@@ -322,7 +413,7 @@
     recognizer.onresult = (event) => {
       const heard = event.results[0][0].transcript;
       const ratio = scoreAttempt(currentPhrase().en, heard);
-      showFeedback(ratio, heard);
+      showFeedbackAndConfirm(ratio, heard);
     };
     recognizer.onerror = () => { setListening(false); };
     recognizer.onend = () => { setListening(false); };
@@ -330,17 +421,14 @@
     speakBtn.addEventListener('click', () => {
       if (!session) return;
       if (listening) { recognizer.stop(); return; }
-      try {
-        recognizer.start();
-        setListening(true);
-      } catch (e) { /* already started */ }
+      try { recognizer.start(); setListening(true); } catch (e) { /* already started */ }
     });
   } else {
     document.getElementById('unsupportedNote').classList.remove('hidden');
-    speakBtn.textContent = '\u2705 Mark as practised';
+    speakBtn.textContent = '\u2705 I said it';
     speakBtn.addEventListener('click', () => {
       if (!session) return;
-      showFeedback(1, '');
+      showFeedbackAndConfirm(1, '');
     });
   }
 
@@ -349,6 +437,9 @@
     speakBtn.classList.toggle('listening', on);
     speakBtn.innerHTML = on ? '&#9679; Listening&hellip;' : '&#127908; Speak';
   }
+
+  // ---- boot ----
+  showDecks();
 </script>
 </body>
 </html>
